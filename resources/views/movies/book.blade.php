@@ -1,6 +1,21 @@
 @extends('base.index')
 
 @section('content')
+  @if (session('success'))
+    <div class="bg-green-100 text-green-800 border border-green-400 px-4 py-3 rounded relative" role="alert">
+      <span class="block sm:inline">{{ session('success') }}</span>
+    </div>  
+  @endif
+
+  @if ($errors->any())
+    <div class="bg-red-100 text-red-800 border border-red-400 px-4 py-3 rounded relative" role="alert">
+      @foreach ($errors->all() as $error)
+        <span class="block sm:inline">{{ $error }}</span>
+      @endforeach
+    </div>
+  @endif
+
+
   <div class="container mt-6 px-4 mx-auto">
     <h1 class="text-xl font-semibold">Movie Information</h1>
     @isset($movieData)
@@ -12,7 +27,8 @@
             Release Date: Not Available
           @endif
         </span></p>
-      <p class="text-2xl font-semibold mt-2">Duration: <span class="font-normal">{{ $movieData->duration }} Minutes</span></p>
+      <p class="text-2xl font-semibold mt-2">Duration: <span class="font-normal">{{ $movieData->duration }} Minutes</span>
+      </p>
     @endisset
 
     <div class="container justify-center items-center mt-8   mx-auto px-4">
@@ -50,8 +66,8 @@
         </label>
         <button class="mt-2 middle none center rounded-lg bg-blue-500 py-3 px-6 font-sans text-xs font-bold uppercase text-white shadow-md shadow-blue-500/20 transition-all hover:shadow-lg hover:shadow-blue-500/40 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
                 data-ripple-light="true"> Order </button>
-                <a href="{{route('movies/index')}}"
-                class="middle none center rounded-lg bg-amber-400 py-3 px-6 font-sans text-xs font-bold uppercase text-black">Back</a>
+        <a href="{{ route('movies/index') }}"
+           class="middle none center rounded-lg bg-amber-400 py-3 px-6 font-sans text-xs font-bold uppercase text-black">Back</a>
       </form>
     </div>
   </div>

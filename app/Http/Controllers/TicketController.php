@@ -9,51 +9,61 @@ class TicketController extends Controller
 {
     public function store(Request $request)
     {
+        // Validate the data
         $data = $request->validate([
             'movie_id' => 'required|integer|exists:movies,id',
             'customer_name' => 'required|string|max:100',
             'seat_number' => 'required|string|max:5',
         ]);
 
-        //  dd($data);
-        if (!$data) {
-            // send error to previous page
-            return redirect()->route('movies/view');
+        try {
+            // Create the ticket
+            Ticket::create([
+                'movie_id' => $request->movie_id,
+                'customer_name' => $data['customer_name'],
+                'seat_number' => $data['seat_number'],
+            ]);
+
+            // Flash success message
+            return redirect()
+                ->route('movies/view', ['id' => $request->movie_id])
+                ->with('success', 'Ticket booked successfully.');
+        } catch (\Exception $e) {
+            // Flash error message
+            return back()->withErrors(['error' => 'An error occurred while booking the ticket. Please try again.']);
         }
-
-        Ticket::create([
-            'movie_id' => $request->movie_id,
-            'customer_name' => $data['customer_name'],
-            'seat_number' => $data['seat_number'],
-        ]);
-
-        return redirect()->route('movies/view', ['id' => $request->movie_id])
-                     ->with('success', 'Ticket deleted successfully');
     }
 
     public function update($id)
     {
-     
         $ticket = Ticket::findOrFail($id);
 
+        try {
+            $ticket->update([
+                'is_checked_in' => 1,
+                'check_in_time' => now(),
+            ]);
 
-        $ticket->update([
-            'is_checked_in' => 1,
-            'check_in_time' => now(),
-        ]);
-
-        return redirect()
-            ->route('movies/view', ['id' => $ticket->movie_id])
-            ->with('success', 'Ticket updated successfully');
+            return redirect()
+                ->route('movies/view', ['id' => $ticket->movie_id])
+                ->with('success', 'Ticket checked in successfully.');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'An error occurred while updating the ticket.']);
+        }
     }
 
     public function destroy($id)
     {
-        // Ticket::query()->where('id', $id)->delete();
         $ticket = Ticket::findOrFail($id);
-        $ticket->delete();
-        return redirect()
-            ->route('movies/view', ['id' => $ticket->movie_id])
-            ->with('success', 'Ticket deleted successfully');
+
+        try {
+            $ticket->delete();
+
+            return redirect()
+                ->route('movies/view', ['id' => $ticket->movie_id])
+                ->with('success', 'Ticket deleted successfully.');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'An error occurred while deleting the ticket.']);
+        }
     }
 }
